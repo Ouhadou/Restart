@@ -3,12 +3,15 @@
 #include "ns3/applications-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/csma-module.h"
-#include "model/simple-udp.h"
+#include "/home/fadoua/bake/source/ns-3.35/src/applications/model/simple-udp.h"
 
 #include "ns3/point-to-point-module.h"
 
 const uint32_t mysize = 100; 
+uint32_t       m_nPackets= 8;
+uint32_t       i = 0; 
 using namespace ns3;
+
 
 std::vector<uint8_t> output(mysize, 0); 
 
@@ -66,23 +69,38 @@ int main (int argc, char *argv[])
   Ptr <Packet> packet1 = Create <Packet> (mysize);
 
   
+  for (i = 1; i<= m_nPackets; i++){
+    Simulator::Schedule(Seconds(i), &SimpleUdpApplication::SendPacket, udp0,packet1, dest_ip, 7777);
+  }
   
   
-  Simulator::Schedule(Seconds(1), &SimpleUdpApplication::SendPacket, udp0,packet1, dest_ip, 7777);
-/*while (maxPacket <= 0)
-  {
-    Simulator::Schedule(Seconds(1), &SimpleUdpApplication::SendPacket, udp0,packet1, dest_ip, 7777);
-    maxPacket--; 
+
+ /* while (m_nPackets > 0 && i < m_nPackets)
+  { 
+    Time tNext (Seconds (i*(mysize * 8 / static_cast<double> (DataRate("5Mbps").GetBitRate ()))));
+    Simulator::Schedule (tNext, &SimpleUdpApplication::SendPacket, udp0,packet1, dest_ip, 7777); 
+    m_nPackets--; 
+    i++;
+    //sleep(10);   
+ 
   } */
+  
   
   
   
     
   LogComponentEnable ("SimpleUdpApplication", LOG_LEVEL_INFO);
 
-  Simulator::Stop (Seconds (10));
+  Simulator::Stop (Seconds (1000));
   Simulator::Run ();
   Simulator::Destroy ();
 
   
  }
+
+  
+ 
+  
+  
+    
+ 
