@@ -110,18 +110,33 @@ void SimpleUdpApplication::SendPacket( Ptr<Packet> packet, Ipv4Address destinati
   { 
     NS_LOG_FUNCTION (this << packet << destination << port);
     m_send_socket->Connect(InetSocketAddress(Ipv4Address::ConvertFrom(destination), port));  
-  
 
-    /*if (!kodierer( (uint32_t)packet->GetSize()))
+    uint8_t *new_buffer = new uint8_t[packet ->GetSize()]; 
+    packet->CopyData(new_buffer, packet->GetSize()); 
+    std::vector<uint8_t> vectorBuffer(&new_buffer[0],&new_buffer[packet->GetSize()]);
+    /*for (long unsigned int i = 0; i < vectorBuffer.size(); i++) {
+            std::cout << vectorBuffer[i] << " ";
+        } */
+    
+
+    if (!kodierer( vectorBuffer, (uint32_t)packet->GetSize()))
     { 
         std::cout << "failed\n";
 
     } 
+    std::vector<uint8_t>V = decoded_output(); 
+    uint8_t *buf = V.data(); 
+   /* for (long unsigned int i = 0; i < V.size(); i++) {
+            std::cout << V[i] << " ";
+        } */
+    
+    
+    Ptr<Packet> packet_i = Create<Packet>(buf, V.size());
 
-    std::vector<uint8_t> out= decoded_output();
-    Ptr <Packet> packet2=Create<Packet> (out.capacity()); */
-  
-    m_send_socket->Send(packet);
+
+
+
+    m_send_socket->Send(packet_i);
   
   }
 
