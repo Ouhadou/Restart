@@ -16,6 +16,7 @@
 
 #include "/home/fadoua/bake/source/ns-3.35/src/applications/helper/encoder_decoder.h"
 #include <stdint.h>
+#include <iostream>
 
 #define PURPLE_CODE "\033[95m"
 #define CYAN_CODE "\033[96m"
@@ -93,14 +94,17 @@ namespace ns3
   {
     NS_LOG_FUNCTION(this << socket);
     Ptr<Packet> packet; 
-    //Ptr<Packet>p= Create<Packet>();
     Address from;
     Address localAddress;
-//	std::cout<<"4\n";
+
     while ((packet = socket->RecvFrom(from)))
      {
-      NS_LOG_INFO(TEAL_CODE << " Received a Packet of size: " << packet->GetSize() << " at time " << Now().GetSeconds() << END_CODE);
-       //packet->AddAtEnd(p);
+      NS_LOG_INFO(TEAL_CODE << "Received a Packet of size: " << packet->GetSize() << " at time " << Now().GetSeconds() << END_CODE);
+        uint8_t *buffer = new uint8_t[packet->GetSize ()];
+        packet->CopyData(buffer, packet->GetSize ());
+        std::string s = std::string((char*)buffer);
+        std::cout << s << '\n';
+   
      }
 
 
@@ -110,33 +114,34 @@ void SimpleUdpApplication::SendPacket( Ptr<Packet> packet, Ipv4Address destinati
   { 
     NS_LOG_FUNCTION (this << packet << destination << port);
     m_send_socket->Connect(InetSocketAddress(Ipv4Address::ConvertFrom(destination), port));  
-
+    //std::cout<< packet->GetSize() << '\n';
     uint8_t *new_buffer = new uint8_t[packet ->GetSize()]; 
     packet->CopyData(new_buffer, packet->GetSize()); 
     std::vector<uint8_t> vectorBuffer(&new_buffer[0],&new_buffer[packet->GetSize()]);
-    /*for (long unsigned int i = 0; i < vectorBuffer.size(); i++) {
-            std::cout << vectorBuffer[i] << " ";
-        } */
-    
-
+    for (long unsigned int i = 0; i < vectorBuffer.size(); i++) {
+            std::cout << vectorBuffer[i] << int(vectorBuffer[i]);
+        } 
+    std::cout << "\n"; // das \n in Hello world wird zu 10 in der Ascii Tabelle 
     if (!kodierer( vectorBuffer, (uint32_t)packet->GetSize()))
     { 
         std::cout << "failed\n";
 
     } 
-    std::vector<uint8_t>V = decoded_output(); 
+    std::vector<uint8_t>V = decoded_output();
     uint8_t *buf = V.data(); 
-   /* for (long unsigned int i = 0; i < V.size(); i++) {
-            std::cout << V[i] << " ";
-        } */
-    
-    
+    for (long unsigned int i = 0; i < V.size(); i++) {
+            std::cout << V[i] << int(V[i]);
+        } 
+    std::cout <<"\n";
     Ptr<Packet> packet_i = Create<Packet>(buf, V.size());
 
 
+     uint8_t *buffer = new uint8_t[packet->GetSize ()];
+     m_send_socket->Send(packet_i); 
+     packet->CopyData(buffer, packet->GetSize ());
+     std::string s = std::string((char*)buffer);
+     std::cout << s << '\n';
 
-
-    m_send_socket->Send(packet_i);
   
   }
 
